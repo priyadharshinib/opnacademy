@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_opnacademy_opnacademy,access.opnacademy.opnacademy,model_opnacademy_course,,1,1,1,1
+access2_opnacademy_opnacademy,access2.opnacademy.opnacademy,model_opnacademy_session,,1,1,1,1
+access3_opnacademy_opnacademy,access3.opnacademy.opnacademy,model_opnacademy_wizard,,1,1,1,1
