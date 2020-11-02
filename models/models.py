@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-
+from datetime import datetime
 from odoo import models, fields, api
+import xmlrpc.client
+
+
+
 
 class Wizard(models.TransientModel):
     _name = 'openacademy.wizard'
@@ -35,19 +39,6 @@ class Course(models.Model):
             record.participantcount = self.env['res.partner'].search_count([('session_ids', '=', self.id)])
 
 
-#   @api.multi
- #  def open_partner(self):
-  #    return {
-   #      'name':_('Participants'), 
-    #     'domain':[('course_id', '=', self.id)],
-     #    'view_type': 'form',
-      #   'res_model': 'opnacademy.course',
-       #  'view_id': False,
-        # 'view_mode': 'tree,form',
-         #'type': 'ir.actions.act_window',
-      #}      
-     
-
 
 class Session(models.Model):
    _name = 'opnacademy.session'
@@ -67,9 +58,38 @@ class Session(models.Model):
         ('Complete', 'Complete'),
     ], string='STATUS', default='Preperation')
    taken_seats = fields.Float(string="Filled Seats", compute='_taken_seats')
+   is_paid = fields.Boolean(string="Is Paid")
+  
 
 
 
+   def invoice_gen(self):
+    url = 'http://localhost:9999'
+    db = 'test_1'
+    username = 'admin'
+    password = 'admin'
+
+    common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
+    uid = common.authenticate(db, username, password, {})
+    models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
+
+    line_id = models.execute_kw(db, uid, password,
+      'account.move', 'create',
+       [{"name":"session instructor invoice",
+         "date":'2020-10-30',
+         "ref":"session",
+         "state":"draft",
+         "type":"out_invoice",
+         "type_name":"Invoice",
+         "invoice_payment_state":"paid",
+         "invoice_date":'2020-10-30',
+         "invoice_date_due":"2020-11-30",
+         "amount_total_signed":100,
+         "partner_id":self.instructor_id.id,
+         "commercial_partner_id":self.instructor_id.id,}])
+    self.write({'is_paid': True})
+
+  
    @api.onchange('taken_seats','session_status')
    def chck_status(self):
       if self.taken_seats >= 50:
@@ -126,4 +146,5 @@ class search1(models.Model):
             'domain': [('session_ids', '=', self.id)],
             'context': "{'create': False}"
         }
+
 

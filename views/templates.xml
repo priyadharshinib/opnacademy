@@ -68,6 +68,14 @@
 			     <field name="name"/>
 			  </h1>
                         </div>
+                        
+                            <button name="invoice_gen"
+                            string="Invoice Teacher"
+                            type="object"
+                            attrs="{'invisible' : [('is_paid', '=', True)]}"/>
+
+                            <field string="Payment" name="is_paid"/> 
+                    
 			<group>
 			     <field name="start_date"/>
 		             <field name="duration"/>
